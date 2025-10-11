@@ -7,9 +7,9 @@ console.log(result);
 
 
 function isPalindrom(string) {
-  let newString = replaceAll(string);
+  let newString = string.replaceAll(' ', '');
   let testString = '';
-  newString = toLowerCase(newString);
+  newString = string.toLowerCase();
 
   for (let i = length(newString) - 1; i >= 0; i--) {
     testString += newString[i];
