@@ -37,9 +37,9 @@ function getNumbers (myString) {
     }
   }
 
-  return result.length === 0 ? NaN : result.join('');
+  return result.length === 0 ? NaN : parseInt(result.join(''), 10);
 }
-// console.log(getNumbers(1.5)); // 15
+// console.log(getNumbers(1.5), typeof(getNumbers(1.5))); // 15
 // console.log(getNumbers(-1.5)); // 15
 // console.log(getNumbers('qwerty')); // NaN
 // console.log(getNumbers('qwerty2025')); // 2025
