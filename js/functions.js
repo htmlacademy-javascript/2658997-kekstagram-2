@@ -1,8 +1,9 @@
 //  Функция 1 Проверка длины строки
 
 const checkStringLength = (myString, maxLength) => myString.length <= maxLength;
-// console.log(checkStringLength('qwerty', 6)); // true
-// console.log(checkStringLength('qwertyqwerty', 5)); // false
+
+window.console.log(checkStringLength('qwerty', 6)); // true
+window.console.log(checkStringLength('qwertyqwerty', 5)); // false
 
 
 // Функция 2 Проверка на палиндром
@@ -20,8 +21,8 @@ function isPalindrome(myString) {
   }
   return result;
 }
-// console.log(isPalindrome('топот')); // true
-// console.log(isPalindrome('топор')); // false
+window.console.log(isPalindrome('топот')); // true
+window.console.log(isPalindrome('топор')); // false
 
 
 // Функция 3 Извлечение цифр от 0 до 9
@@ -39,7 +40,7 @@ function getNumbers (myString) {
 
   return result.length === 0 ? NaN : parseInt(result.join(''), 10);
 }
-// console.log(getNumbers(1.5), typeof(getNumbers(1.5))); // 15
-// console.log(getNumbers(-1.5)); // 15
-// console.log(getNumbers('qwerty')); // NaN
-// console.log(getNumbers('qwerty2025')); // 2025
+window.console.log(getNumbers(1.5), typeof(getNumbers(1.5))); // 15
+window.console.log(getNumbers(-1.5)); // 15
+window.console.log(getNumbers('qwerty')); // NaN
+window.console.log(getNumbers('qwerty2025')); // 2025
