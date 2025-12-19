@@ -40,6 +40,7 @@ function getNumbers (myString) {
 
   return result.length === 0 ? NaN : parseInt(result.join(''), 10);
 }
+
 window.console.log(getNumbers(1.5), typeof(getNumbers(1.5))); // 15
 window.console.log(getNumbers(-1.5)); // 15
 window.console.log(getNumbers('qwerty')); // NaN

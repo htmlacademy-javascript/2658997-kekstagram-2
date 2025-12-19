@@ -1,4 +1,4 @@
-import {getRandomInteger, getRandomArrayElement } from './util';
+import {getRandomInteger, getRandomArrayElement } from './util.js';
 
 const PHOTOS_COUNT = 25;
 const MIN_LIKES_COUNT = 15;
@@ -78,4 +78,3 @@ const createPhoto = (id) => ({
 const createPhotos = () => Array.from({length: PHOTOS_COUNT}, (_, index) => createPhoto(index + 1));
 
 export {createPhotos};
-
