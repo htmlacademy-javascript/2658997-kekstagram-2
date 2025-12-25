@@ -1,6 +1,9 @@
-import {createPhotos} from './data.js';
-import {getPictures} from './createMiniatures.js';
+import { createPhotosData } from './data.js';
+import { renderPictures } from './render-miniatures.js';
+import { openBigPicture} from './big-picture-modal.js';
 
-const pictures = createPhotos();
+const picturesMiniatures = createPhotosData();
+renderPictures(picturesMiniatures);
 
-getPictures(pictures);
+
+openBigPicture(picturesMiniatures);
