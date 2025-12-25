@@ -2,7 +2,9 @@ const bigPicture = document.querySelector('.big-picture');
 const image = bigPicture.querySelector('.big-picture__img img');
 const likesCount = bigPicture.querySelector('.likes-count');
 const socialCaption = bigPicture.querySelector('.social__caption');
-const commentCount = bigPicture.querySelector('.social__comment-count');
+
+const commentShownCount = bigPicture.querySelector('.social__comment-shown-count');
+const commentTotalCount = bigPicture.querySelector('.social__comment-total-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 
 const commentList = bigPicture.querySelector('.social__comments');
@@ -20,18 +22,38 @@ const createCommentElement = ({ avatar, name, message }) => {
   return commentElement;
 };
 
-const renderComments = (comments) => {
-  commentList.innerHTML = '';
+const COMMENTS_STEP = 5;
+let commentsArray = [];
+let commentsShown = 0;
 
-  const fragment = document.createDocumentFragment();
+const renderCommentsShown = () => {
+  const previousCommentsCount = commentsShown;
 
-  comments.forEach((comment) => {
-    const commentElement = createCommentElement(comment);
-    fragment.append(commentElement);
-  });
+  commentsShown += COMMENTS_STEP;
 
-  commentList.append(fragment);
+  if (commentsShown >= commentsArray.length) {
+    commentsShown = commentsArray.length;
+    commentsLoader.classList.add('hidden');
+  } else {
+    commentsLoader.classList.remove('hidden');
+  }
+
+  const commentsFragment = document.createDocumentFragment();
+
+  for (let i = previousCommentsCount; i < commentsShown; i++) {
+    const commentElement = createCommentElement(commentsArray[i]);
+    commentsFragment.append(commentElement);
+  }
+
+  commentList.append(commentsFragment);
+
+  commentShownCount.textContent = commentsShown;
+  commentTotalCount.textContent = commentsArray.length;
 };
+
+commentsLoader.addEventListener('click', () => {
+  renderCommentsShown();
+});
 
 
 export const renderBigPicture = ({url, description, likes, comments}) => {
@@ -41,8 +63,9 @@ export const renderBigPicture = ({url, description, likes, comments}) => {
   socialCaption.textContent = description;
   likesCount.textContent = likes;
 
-  renderComments(comments);
+  commentsArray = comments;
+  commentsShown = 0;
 
-  commentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+  commentList.innerHTML = '';
+  renderCommentsShown();
 };
