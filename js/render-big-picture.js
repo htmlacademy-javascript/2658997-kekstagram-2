@@ -1,3 +1,5 @@
+const COMMENTS_DISPLAY_STEP = 5;
+
 const bigPicture = document.querySelector('.big-picture');
 const image = bigPicture.querySelector('.big-picture__img img');
 const likesCount = bigPicture.querySelector('.likes-count');
@@ -9,6 +11,9 @@ const commentsLoader = bigPicture.querySelector('.comments-loader');
 
 const commentList = bigPicture.querySelector('.social__comments');
 const commentTemplate = bigPicture.querySelector('.social__comment');
+
+let comments = [];
+let commentsShown = 0;
 
 const createCommentElement = ({ avatar, name, message }) => {
   const commentElement = commentTemplate.cloneNode(true);
@@ -22,17 +27,13 @@ const createCommentElement = ({ avatar, name, message }) => {
   return commentElement;
 };
 
-const COMMENTS_STEP = 5;
-let commentsArray = [];
-let commentsShown = 0;
-
 const renderCommentsShown = () => {
   const previousCommentsCount = commentsShown;
 
-  commentsShown += COMMENTS_STEP;
+  commentsShown += COMMENTS_DISPLAY_STEP;
 
-  if (commentsShown >= commentsArray.length) {
-    commentsShown = commentsArray.length;
+  if (commentsShown >= comments.length) {
+    commentsShown = comments.length;
     commentsLoader.classList.add('hidden');
   } else {
     commentsLoader.classList.remove('hidden');
@@ -41,31 +42,35 @@ const renderCommentsShown = () => {
   const commentsFragment = document.createDocumentFragment();
 
   for (let i = previousCommentsCount; i < commentsShown; i++) {
-    const commentElement = createCommentElement(commentsArray[i]);
+    const commentElement = createCommentElement(comments[i]);
     commentsFragment.append(commentElement);
   }
 
   commentList.append(commentsFragment);
 
   commentShownCount.textContent = commentsShown;
-  commentTotalCount.textContent = commentsArray.length;
+
+};
+
+const renderBigPicture = (photo) => {
+
+  image.src = photo.url;
+  image.alt = photo.description;
+  socialCaption.textContent = photo.description;
+  likesCount.textContent = photo.likes;
+
+  comments = photo.comments;
+  commentsShown = 0;
+
+  commentList.innerHTML = '';
+
+  commentTotalCount.textContent = comments.length;
+
+  renderCommentsShown();
 };
 
 commentsLoader.addEventListener('click', () => {
   renderCommentsShown();
 });
 
-
-export const renderBigPicture = ({url, description, likes, comments}) => {
-
-  image.src = url;
-  image.alt = description;
-  socialCaption.textContent = description;
-  likesCount.textContent = likes;
-
-  commentsArray = comments;
-  commentsShown = 0;
-
-  commentList.innerHTML = '';
-  renderCommentsShown();
-};
+export { renderBigPicture };
