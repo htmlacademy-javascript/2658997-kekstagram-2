@@ -1,11 +1,11 @@
+import { isEscapeKey } from './util.js';
 import { renderBigPicture } from './render-big-picture.js';
 
 const picturesContainer = document.querySelector('.pictures');
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
 
-
-export const openBigPicture = (photos) => {
+const openBigPicture = (photos) => {
   picturesContainer.addEventListener('click', (evt) => {
 
     const photoElement = evt.target.closest('.picture');
@@ -24,25 +24,27 @@ export const openBigPicture = (photos) => {
     bigPicture.classList.remove('hidden');
     document.body.classList.add('modal-open');
 
-    document.addEventListener('keydown', onEscapeKeydown);
-  });
+    document.addEventListener('keydown', onDocumentKeydown);
 
-  bigPictureCloseButton.addEventListener('click', () => {
-    closeBigPicture();
   });
-
 };
 
-function closeBigPicture () {
+function closeBigPicture() {
   bigPicture.classList.add('hidden');
   document.body.classList.remove('modal-open');
 
-  document.removeEventListener('keydown', onEscapeKeydown);
+  document.removeEventListener('keydown', onDocumentKeydown);
 }
 
-function onEscapeKeydown (evt) {
-  if(evt.key === 'Escape') {
+function onDocumentKeydown(evt) {
+  if(isEscapeKey) {
     evt.preventDefault();
     closeBigPicture();
   }
 }
+
+bigPictureCloseButton.addEventListener('click', () => {
+  closeBigPicture();
+});
+
+export {openBigPicture};
