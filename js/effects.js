@@ -7,6 +7,8 @@ const EFFECTS = {
   heat: { style: 'brightness', min: 1, max: 3, step: 0.1, unit: '' }
 };
 
+const SLIDER_START_VALUE = 100;
+
 const imageElement = document.querySelector('.img-upload__preview img');
 const sliderElement = document.querySelector('.effect-level__slider');
 const sliderContainer = document.querySelector('.img-upload__effect-level');
@@ -15,22 +17,9 @@ const effectsList = document.querySelector('.effects__list');
 
 let currentEffect = 'none';
 
-noUiSlider.create(sliderElement, {
-  range: { min: 0, max: 100 },
-  start: 100,
-  step: 1,
-  connect: 'lower',
-});
-
-sliderContainer.classList.add('hidden');
-
 const applyFilter = (value) => {
   const { style, unit } = EFFECTS[currentEffect];
-  if (currentEffect === 'none') {
-    imageElement.style.filter = 'none';
-  } else {
-    imageElement.style.filter = `${style}(${value}${unit})`;
-  }
+  imageElement.style.filter = currentEffect === 'none' ? 'none' : `${style}(${value}${unit})`;
 };
 
 const updateSlider = (effect) => {
@@ -52,19 +41,28 @@ const updateSlider = (effect) => {
   });
 };
 
+const resetEffects = () => {
+  updateSlider('none');
+};
+
+effectsList.addEventListener('change', (evt) => {
+  updateSlider(evt.target.value);
+});
+
+noUiSlider.create(sliderElement, {
+  range: { min: 0, max: 100 },
+  start: SLIDER_START_VALUE,
+  step: 1,
+  connect: 'lower',
+});
+
 sliderElement.noUiSlider.on('update', () => {
   const value = sliderElement.noUiSlider.get();
   effectLevelInput.value = value;
   applyFilter(value);
 });
 
-effectsList.addEventListener('change', (evt) => {
-  updateSlider(evt.target.value);
-});
-
-const resetEffects = () => {
-  updateSlider('none');
-};
+sliderContainer.classList.add('hidden');
 
 
 export { resetEffects };

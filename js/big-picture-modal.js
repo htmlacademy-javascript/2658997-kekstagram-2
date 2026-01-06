@@ -1,9 +1,12 @@
-import { isEscapeKey } from './util.js';
+import { isEscapeKey } from './utils.js';
 import { renderBigPicture } from './render-big-picture.js';
 
 const picturesContainer = document.querySelector('.pictures');
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
+const bigPictureComment = bigPicture.querySelector('.social__footer-text');
+
+const isCommentFieldFocused = () => document.activeElement === bigPictureComment;
 
 const openBigPicture = (photos) => {
   picturesContainer.addEventListener('click', (evt) => {
@@ -37,7 +40,7 @@ function closeBigPicture() {
 }
 
 function onDocumentKeydown(evt) {
-  if(isEscapeKey) {
+  if(isEscapeKey(evt) && !isCommentFieldFocused()) {
     evt.preventDefault();
     closeBigPicture();
   }

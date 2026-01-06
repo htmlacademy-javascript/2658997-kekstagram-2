@@ -1,6 +1,8 @@
-import { isEscapeKey } from './util.js';
+import { isEscapeKey } from './utils.js';
 import { resetScale } from './upload-photo-form.js';
 import { resetEffects } from './effects.js';
+import { sendData } from './api.js';
+import { appendNotification } from './utils.js';
 
 const MAX_HASHTAGS_COUNT = 5;
 const MAX_COMMENT_LENGTH = 140;
@@ -10,11 +12,35 @@ const form = document.querySelector('.img-upload__form');
 const uploadInput = form.querySelector('.img-upload__input');
 const overlay = form.querySelector('.img-upload__overlay');
 const closeFormButton = form.querySelector('.img-upload__cancel');
+const formSubmitButton = form.querySelector('.img-upload__submit');
+
+const successTemplate = document.querySelector('#success')
+  .content
+  .querySelector('.success');
+
+const errorTemplate = document.querySelector('#error')
+  .content
+  .querySelector('.error');
+
+const submitButtonText = {
+  IDLE: 'Опубликовать',
+  SENDING: 'Опубликовываю...',
+};
 
 const hashtagInput = form.querySelector('.text__hashtags');
 const commentInput = form.querySelector('.text__description');
 
 const isTextFieldFocused = () => document.activeElement === hashtagInput || document.activeElement === commentInput;
+
+const disabledButton = (buttonText) => {
+  formSubmitButton.disabled = true;
+  formSubmitButton.textContent = buttonText;
+};
+
+const enabledButton = (buttonText) => {
+  formSubmitButton.disabled = false;
+  formSubmitButton.textContent = buttonText;
+};
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
@@ -27,20 +53,20 @@ const normalizeHashtags = (tagString) => tagString
   .split(' ')
   .filter((hashtag) => Boolean(hashtag.length));
 
-const hasValidHashtagsCount = (value) => normalizeHashtags(value).length <= MAX_HASHTAGS_COUNT;
+const checkValidHashtagsCount = (value) => normalizeHashtags(value).length <= MAX_HASHTAGS_COUNT;
 
-const hasUniqueHashtags = (value) => {
+const checkUniqueHashtags = (value) => {
   const lowerCaseTags = normalizeHashtags(value).map((tag) => tag.toLowerCase());
   return lowerCaseTags.length === new Set(lowerCaseTags).size;
 };
 
-const validateComment = (value) => value.length <= MAX_COMMENT_LENGTH;
+const checkCommentLength = (value) => value.length <= MAX_COMMENT_LENGTH;
 
-const hasValidHashtags = (value) => normalizeHashtags(value).every((tag) => VALID_SYMBOLS.test(tag));
+const checkValidHashtags = (value) => normalizeHashtags(value).every((tag) => VALID_SYMBOLS.test(tag));
 
 pristine.addValidator(
   hashtagInput,
-  hasValidHashtags,
+  checkValidHashtags,
   'Неверный хэштег: начни с #, используй буквы и цифры, до 20 символов',
   1,
   true
@@ -48,7 +74,7 @@ pristine.addValidator(
 
 pristine.addValidator(
   hashtagInput,
-  hasUniqueHashtags,
+  checkUniqueHashtags,
   'Хэштеги не должны повторяться',
   2,
   true
@@ -56,7 +82,7 @@ pristine.addValidator(
 
 pristine.addValidator(
   hashtagInput,
-  hasValidHashtagsCount,
+  checkValidHashtagsCount,
   'Нельзя указать больше 5 хэштегов',
   3,
   true
@@ -64,7 +90,7 @@ pristine.addValidator(
 
 pristine.addValidator(
   commentInput,
-  validateComment,
+  checkCommentLength,
   `Длина комментария не может составлять больше ${MAX_COMMENT_LENGTH} символов`
 );
 
@@ -74,7 +100,6 @@ const onDocumentKeydown = (evt) => {
     closeForm();
   }
 };
-
 
 function openForm() {
   overlay.classList.remove('hidden');
@@ -100,9 +125,27 @@ closeFormButton.addEventListener('click', () => {
   closeForm();
 });
 
-form.addEventListener('submit', (evt) => {
+
+const sendFormData = async (formElement) => {
   const isValid = pristine.validate();
-  if (!isValid) {
-    evt.preventDefault();
+  if (isValid) {
+    disabledButton(submitButtonText.SENDING);
+    try {
+      await sendData(new FormData(formElement));
+      closeForm();
+      appendNotification(successTemplate);
+    } catch (error) {
+      appendNotification(errorTemplate);
+      document.removeEventListener('keydown', onDocumentKeydown);
+    } finally {
+      enabledButton(submitButtonText.IDLE);
+    }
   }
-});
+};
+
+const formSubmitHandler = (evt) => {
+  evt.preventDefault();
+  sendFormData(evt.target);
+};
+
+form.addEventListener('submit', formSubmitHandler);
