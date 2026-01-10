@@ -1,18 +1,21 @@
-import { isEscapeKey } from './utils.js';
+import { isEscapeKey, appendNotification } from './utils.js';
 import { resetScale } from './upload-photo-form.js';
 import { resetEffects } from './effects.js';
 import { sendData } from './api.js';
-import { appendNotification } from './utils.js';
 
 const MAX_HASHTAGS_COUNT = 5;
 const MAX_COMMENT_LENGTH = 140;
 const VALID_SYMBOLS = /^#[a-zа-яё0-9]{1,19}$/i;
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
 const form = document.querySelector('.img-upload__form');
 const uploadInput = form.querySelector('.img-upload__input');
 const overlay = form.querySelector('.img-upload__overlay');
 const closeFormButton = form.querySelector('.img-upload__cancel');
 const formSubmitButton = form.querySelector('.img-upload__submit');
+
+const preview = form.querySelector('.img-upload__preview img');
+const effectPreviews = form.querySelectorAll('.effects__preview');
 
 const successTemplate = document.querySelector('#success')
   .content
@@ -22,7 +25,7 @@ const errorTemplate = document.querySelector('#error')
   .content
   .querySelector('.error');
 
-const submitButtonText = {
+const SubmitButtonText = {
   IDLE: 'Опубликовать',
   SENDING: 'Опубликовываю...',
 };
@@ -31,16 +34,6 @@ const hashtagInput = form.querySelector('.text__hashtags');
 const commentInput = form.querySelector('.text__description');
 
 const isTextFieldFocused = () => document.activeElement === hashtagInput || document.activeElement === commentInput;
-
-const disabledButton = (buttonText) => {
-  formSubmitButton.disabled = true;
-  formSubmitButton.textContent = buttonText;
-};
-
-const enabledButton = (buttonText) => {
-  formSubmitButton.disabled = false;
-  formSubmitButton.textContent = buttonText;
-};
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
@@ -95,7 +88,8 @@ pristine.addValidator(
 );
 
 const onDocumentKeydown = (evt) => {
-  if(isEscapeKey(evt) && !isTextFieldFocused()) {
+  const isErrorWindowOpen = Boolean(document.querySelector('.error'));
+  if(isEscapeKey(evt) && !isTextFieldFocused() && !isErrorWindowOpen) {
     evt.preventDefault();
     closeForm();
   }
@@ -115,37 +109,57 @@ function closeForm() {
   overlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onDocumentKeydown);
+
+  if (preview.src.startsWith('blob:')) {
+    URL.revokeObjectURL(preview.src);
+  }
 }
 
 uploadInput.addEventListener('change', () => {
-  openForm();
+  const file = uploadInput.files[0];
+  if (!file) {
+    return;
+  }
+
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+
+  if (matches) {
+    const url = URL.createObjectURL(file);
+    preview.src = url;
+    effectPreviews.forEach((item) => {
+      item.style.backgroundImage = `url(${url})`;
+    });
+
+    openForm();
+  }
 });
 
 closeFormButton.addEventListener('click', () => {
   closeForm();
 });
 
+const toggleButtonState = (isLoading, buttonText) => {
+  formSubmitButton.disabled = isLoading;
+  formSubmitButton.textContent = buttonText;
+};
 
 const sendFormData = async (formElement) => {
-  const isValid = pristine.validate();
-  if (isValid) {
-    disabledButton(submitButtonText.SENDING);
+  if (pristine.validate()) {
+    toggleButtonState(true, SubmitButtonText.SENDING);
     try {
       await sendData(new FormData(formElement));
       closeForm();
       appendNotification(successTemplate);
     } catch (error) {
       appendNotification(errorTemplate);
-      document.removeEventListener('keydown', onDocumentKeydown);
     } finally {
-      enabledButton(submitButtonText.IDLE);
+      toggleButtonState(false, SubmitButtonText.IDLE);
     }
   }
 };
 
-const formSubmitHandler = (evt) => {
+form.addEventListener('submit', (evt) => {
   evt.preventDefault();
   sendFormData(evt.target);
-};
-
-form.addEventListener('submit', formSubmitHandler);
+});
