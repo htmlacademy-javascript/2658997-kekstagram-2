@@ -17,10 +17,8 @@ const SORT_FUNCTION = {
 
 const filterControl = document.querySelector('.img-filters');
 
-let activeButton = document.querySelector(`.${ACTIVE_BUTTON_CLASS}`);
-let targetButton = null;
-
 let currentFilter = FILTER.default;
+let lastRenderedFilter = FILTER.default;
 let pictures = [];
 
 const getFilteredPictures = () => {
@@ -39,23 +37,30 @@ const removePictures = () => {
 };
 
 const renderFilteredPictures = () => {
-  if(!targetButton.matches('button') || activeButton === targetButton) {
+  if (currentFilter === lastRenderedFilter) {
     return;
   }
 
-  activeButton.classList.remove(ACTIVE_BUTTON_CLASS);
-  activeButton = targetButton;
-  targetButton.classList.add(ACTIVE_BUTTON_CLASS);
-  currentFilter = targetButton.id;
-
   removePictures();
   renderPictures(getFilteredPictures());
+
+  lastRenderedFilter = currentFilter;
 };
 
 const debouncedRenderPictures = debounce(renderFilteredPictures, TIMEOUT_DELAY);
 
 function onFilterClick(evt) {
-  targetButton = evt.target;
+  const clickedButton = evt.target.closest('.img-filters__button');
+  const activeButton = filterControl.querySelector(`.${ACTIVE_BUTTON_CLASS}`);
+
+  if (!clickedButton || clickedButton.id === currentFilter) {
+    return;
+  }
+
+  activeButton.classList.remove(ACTIVE_BUTTON_CLASS);
+  clickedButton.classList.add(ACTIVE_BUTTON_CLASS);
+
+  currentFilter = clickedButton.id;
 
   debouncedRenderPictures();
 }

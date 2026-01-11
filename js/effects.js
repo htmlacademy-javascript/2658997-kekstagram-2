@@ -58,7 +58,9 @@ noUiSlider.create(effectLevelSlider, {
 
 effectLevelSlider.noUiSlider.on('update', () => {
   const value = effectLevelSlider.noUiSlider.get();
-  effectLevelInput.value = value;
+
+  const normalizedValue = parseFloat(value);
+  effectLevelInput.value = normalizedValue;
   applyFilter(value);
 });
 
