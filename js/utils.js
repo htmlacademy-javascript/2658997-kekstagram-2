@@ -29,6 +29,7 @@ const appendNotification = (template) => {
   function onNotificationEsc(evt) {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
+      evt.stopPropagation();
       removeNotification();
     }
   }
@@ -45,5 +46,25 @@ const appendNotification = (template) => {
   body.append(notification);
 };
 
+const debounce = (callback, timeoutDelay) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+};
 
-export { isEscapeKey, showErrorMessage, appendNotification };
+const throttle = (callback, delayBetweenFrames) => {
+  let lastTime = 0;
+
+  return (...rest) => {
+    const now = new Date();
+
+    if (now - lastTime >= delayBetweenFrames) {
+      callback.apply(this, rest);
+      lastTime = now;
+    }
+  };
+};
+
+export { isEscapeKey, showErrorMessage, appendNotification, debounce, throttle };
