@@ -50,21 +50,8 @@ const debounce = (callback, timeoutDelay) => {
   let timeoutId;
   return (...rest) => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+    timeoutId = setTimeout(() => callback(...rest), timeoutDelay);
   };
 };
 
-const throttle = (callback, delayBetweenFrames) => {
-  let lastTime = 0;
-
-  return (...rest) => {
-    const now = new Date();
-
-    if (now - lastTime >= delayBetweenFrames) {
-      callback.apply(this, rest);
-      lastTime = now;
-    }
-  };
-};
-
-export { isEscapeKey, showErrorMessage, appendNotification, debounce, throttle };
+export { isEscapeKey, showErrorMessage, appendNotification, debounce };

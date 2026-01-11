@@ -57,41 +57,39 @@ const checkCommentLength = (value) => value.length <= MAX_COMMENT_LENGTH;
 
 const checkValidHashtags = (value) => normalizeHashtags(value).every((tag) => VALID_SYMBOLS.test(tag));
 
-pristine.addValidator(
-  hashtagInput,
-  checkValidHashtags,
-  'Неверный хэштег: начни с #, используй буквы и цифры, до 20 символов',
-  1,
-  true
-);
+const addValidator = (input, check, message, priority = 0, halt = false) =>
+  pristine.addValidator(input, check, message, priority, halt);
 
-pristine.addValidator(
-  hashtagInput,
-  checkUniqueHashtags,
-  'Хэштеги не должны повторяться',
-  2,
-  true
-);
-
-pristine.addValidator(
-  hashtagInput,
-  checkValidHashtagsCount,
-  'Нельзя указать больше 5 хэштегов',
-  3,
-  true
-);
-
-pristine.addValidator(
-  commentInput,
-  checkCommentLength,
-  `Длина комментария не может составлять больше ${MAX_COMMENT_LENGTH} символов`
-);
+addValidator(hashtagInput, checkValidHashtags, 'Неверный хэштег: начни с #, используй буквы и цифры, до 20 символов', 1, true);
+addValidator(hashtagInput, checkUniqueHashtags, 'Хэштеги не должны повторяться', 2, true);
+addValidator(hashtagInput, checkValidHashtagsCount, 'Нельзя указать больше 5 хэштегов', 3, true);
+addValidator(commentInput, checkCommentLength, `Длина комментария не может составлять больше ${MAX_COMMENT_LENGTH} символов`);
 
 const onDocumentKeydown = (evt) => {
   const isErrorWindowOpen = Boolean(document.querySelector('.error'));
   if(isEscapeKey(evt) && !isTextFieldFocused() && !isErrorWindowOpen) {
     evt.preventDefault();
     closeForm();
+  }
+};
+
+const toggleButtonState = (isLoading, buttonText) => {
+  formSubmitButton.disabled = isLoading;
+  formSubmitButton.textContent = buttonText;
+};
+
+const sendFormData = async (formElement) => {
+  if (pristine.validate()) {
+    toggleButtonState(true, SubmitButtonText.SENDING);
+    try {
+      await sendData(new FormData(formElement));
+      closeForm();
+      appendNotification(successTemplate);
+    } catch (error) {
+      appendNotification(errorTemplate);
+    } finally {
+      toggleButtonState(false, SubmitButtonText.IDLE);
+    }
   }
 };
 
@@ -138,26 +136,6 @@ uploadInput.addEventListener('change', () => {
 closeFormButton.addEventListener('click', () => {
   closeForm();
 });
-
-const toggleButtonState = (isLoading, buttonText) => {
-  formSubmitButton.disabled = isLoading;
-  formSubmitButton.textContent = buttonText;
-};
-
-const sendFormData = async (formElement) => {
-  if (pristine.validate()) {
-    toggleButtonState(true, SubmitButtonText.SENDING);
-    try {
-      await sendData(new FormData(formElement));
-      closeForm();
-      appendNotification(successTemplate);
-    } catch (error) {
-      appendNotification(errorTemplate);
-    } finally {
-      toggleButtonState(false, SubmitButtonText.IDLE);
-    }
-  }
-};
 
 form.addEventListener('submit', (evt) => {
   evt.preventDefault();
