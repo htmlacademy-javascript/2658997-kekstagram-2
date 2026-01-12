@@ -9,8 +9,8 @@ const EFFECTS = {
 
 const SLIDER_START_VALUE = 100;
 
-const imageElement = document.querySelector('.img-upload__preview img');
-const sliderElement = document.querySelector('.effect-level__slider');
+const previewImage = document.querySelector('.img-upload__preview img');
+const effectLevelSlider = document.querySelector('.effect-level__slider');
 const sliderContainer = document.querySelector('.img-upload__effect-level');
 const effectLevelInput = document.querySelector('.effect-level__value');
 const effectsList = document.querySelector('.effects__list');
@@ -19,7 +19,7 @@ let currentEffect = 'none';
 
 const applyFilter = (value) => {
   const { style, unit } = EFFECTS[currentEffect];
-  imageElement.style.filter = currentEffect === 'none' ? 'none' : `${style}(${value}${unit})`;
+  previewImage.style.filter = currentEffect === 'none' ? 'none' : `${style}(${value}${unit})`;
 };
 
 const updateSlider = (effect) => {
@@ -34,7 +34,7 @@ const updateSlider = (effect) => {
   sliderContainer.classList.remove('hidden');
   const { min, max, step } = EFFECTS[currentEffect];
 
-  sliderElement.noUiSlider.updateOptions({
+  effectLevelSlider.noUiSlider.updateOptions({
     range: { min, max },
     start: max,
     step,
@@ -49,16 +49,18 @@ effectsList.addEventListener('change', (evt) => {
   updateSlider(evt.target.value);
 });
 
-noUiSlider.create(sliderElement, {
+noUiSlider.create(effectLevelSlider, {
   range: { min: 0, max: 100 },
   start: SLIDER_START_VALUE,
   step: 1,
   connect: 'lower',
 });
 
-sliderElement.noUiSlider.on('update', () => {
-  const value = sliderElement.noUiSlider.get();
-  effectLevelInput.value = value;
+effectLevelSlider.noUiSlider.on('update', () => {
+  const value = effectLevelSlider.noUiSlider.get();
+
+  const normalizedValue = parseFloat(value);
+  effectLevelInput.value = normalizedValue;
   applyFilter(value);
 });
 
