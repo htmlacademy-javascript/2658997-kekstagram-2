@@ -23,10 +23,10 @@ const appendNotification = (template) => {
 
   const removeNotification = () => {
     notification.remove();
-    document.removeEventListener('keydown', onNotificationEsc);
+    document.removeEventListener('keydown', onDocumentKeydown);
   };
 
-  function onNotificationEsc(evt) {
+  function onDocumentKeydown(evt) {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
       evt.stopPropagation();
@@ -36,13 +36,13 @@ const appendNotification = (template) => {
 
   notification.addEventListener('click', (evt) => {
     if (evt.target === notification) {
-      notification.remove();
+      removeNotification();
     }
   });
 
   closeButton.addEventListener('click', () => removeNotification());
 
-  document.addEventListener('keydown', onNotificationEsc);
+  document.addEventListener('keydown', onDocumentKeydown);
   body.append(notification);
 };
 
