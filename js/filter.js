@@ -1,6 +1,7 @@
 import { renderPictures } from './render-miniatures.js';
 import { debounce } from './utils.js';
 
+
 const ACTIVE_BUTTON_CLASS = 'img-filters__button--active';
 const MAX_RANDOM_PICTURE_COUNT = 10;
 const TIMEOUT_DELAY = 500;
