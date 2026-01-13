@@ -11,7 +11,7 @@ const FILTER = {
 };
 
 const SORT_FUNCTION = {
-  random: () => 0.5 - Math.random(),
+  randomed: () => 0.5 - Math.random(),
   discussed: (a, b) => b.comments.length - a.comments.length,
 };
 
@@ -24,7 +24,7 @@ let pictures = [];
 const getFilteredPictures = () => {
   switch (currentFilter) {
     case FILTER.random:
-      return [...pictures].sort(SORT_FUNCTION.random).slice(0, MAX_RANDOM_PICTURE_COUNT);
+      return [...pictures].sort(SORT_FUNCTION.randomed).slice(0, MAX_RANDOM_PICTURE_COUNT);
     case FILTER.discussed:
       return [...pictures].sort(SORT_FUNCTION.discussed);
     default:
