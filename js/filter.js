@@ -12,8 +12,8 @@ const FILTER = {
 };
 
 const SORT_FUNCTION = {
-  randomized: () => 0.5 - Math.random(),
-  discussed: (a, b) => b.comments.length - a.comments.length,
+  getRandom: () => 0.5 - Math.random(),
+  getDiscussed: (a, b) => b.comments.length - a.comments.length,
 };
 
 const filterControl = document.querySelector('.img-filters');
@@ -25,9 +25,9 @@ let pictures = [];
 const getFilteredPictures = () => {
   switch (currentFilter) {
     case FILTER.random:
-      return [...pictures].sort(SORT_FUNCTION.randomized).slice(0, MAX_RANDOM_PICTURE_COUNT);
+      return [...pictures].sort(SORT_FUNCTION.getRandom).slice(0, MAX_RANDOM_PICTURE_COUNT);
     case FILTER.discussed:
-      return [...pictures].sort(SORT_FUNCTION.discussed);
+      return [...pictures].sort(SORT_FUNCTION.getDiscussed);
     default:
       return [...pictures];
   }
